@@ -311,6 +311,12 @@
             font-size: 12px;
         }
 
+        .detail-table td.detalle-cell {
+            font-size: 10px;
+            color: #555;
+            line-height: 1.4;
+        }
+
         .detail-table tbody tr {
             background: #ffffff;
         }
@@ -402,6 +408,10 @@
                 font-size: 11px;
             }
 
+            .detail-table td.detalle-cell {
+                font-size: 9px;
+            }
+
             .modal-content {
                 margin: 10% auto;
                 padding: 20px;
@@ -471,6 +481,7 @@
                             <th>Proyecto</th>
                             <th>Doliente</th>
                             <th>Estado</th>
+                            <th>Detalle</th>
                             <th>Observación</th>
                         </tr>
                     </thead>
@@ -512,15 +523,17 @@
                 const proyectoVal = row[columnMapping.proyecto] || '-';
                 const dolienteVal = row[columnMapping.doliente] || '-';
                 const estadoVal = row[columnMapping.estado] || '-';
+                const detalleVal = row[columnMapping.detalle] || '-';
                 const observacionVal = row[columnMapping.observacion] || '-';
                 
-                console.log(`Fila ${itemId}:`, { proyectoVal, dolienteVal, estadoVal, observacionVal });
+                console.log(`Fila ${itemId}:`, { proyectoVal, dolienteVal, estadoVal, detalleVal, observacionVal });
                 
                 detailHtml += `<tr id="row-${id}">
                     <td><span class="id-badge">${id}</span></td>
                     <td>${proyectoVal}</td>
                     <td>${dolienteVal}</td>
                     <td>${estadoVal}</td>
+                    <td class="detalle-cell">${detalleVal}</td>
                     <td>${observacionVal}</td>
                 </tr>`;
                 itemId++;
@@ -564,6 +577,7 @@
                 columnMapping.proyecto = findColumn(['proyecto', 'Proyecto', 'PROYECTO']);
                 columnMapping.doliente = findColumn(['doliente', 'Doliente', 'DOLIENTE']);
                 columnMapping.estado = findColumn(['estado', 'Estado', 'ESTADO']);
+                columnMapping.detalle = findColumn(['detalle', 'Detalle', 'DETALLE']);
                 columnMapping.observacion = findColumn(['observacion', 'observación', 'Observación', 'Observacion', 'OBSERVACION', 'OBSERVACIÓN']);
 
                 console.log('Mapeo de columnas encontradas:', columnMapping);
