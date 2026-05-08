@@ -485,9 +485,19 @@
         let chartInstance = null;
         let allData = [];
         let contenidoCol = '';
+        let columnMapping = {};
         
         function closeModal() {
             document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function findColumn(searchTerms) {
+            const allCols = Object.keys(allData[0] || {});
+            for (let term of searchTerms) {
+                const found = allCols.find(col => col.toLowerCase().trim() === term.toLowerCase().trim());
+                if (found) return found;
+            }
+            return null;
         }
 
         function showCategoryDetails(category) {
@@ -495,21 +505,16 @@
                 row[contenidoCol]?.toString().trim() === category
             );
 
-            const proyectoCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('proyecto'));
-            const dolienteCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('doliente'));
-            const estadoCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('estado'));
-            const observacionCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('observ'));
-
-            console.log('Columnas encontradas:', { proyectoCol, dolienteCol, estadoCol, observacionCol });
-
             let detailHtml = '';
             let itemId = 1;
             details.forEach(row => {
                 const id = `${category.substring(0, 3).toUpperCase()}-${itemId}`;
-                const proyectoVal = row[proyectoCol] || '-';
-                const dolienteVal = row[dolienteCol] || '-';
-                const estadoVal = row[estadoCol] || '-';
-                const observacionVal = row[observacionCol] || '-';
+                const proyectoVal = row[columnMapping.proyecto] || '-';
+                const dolienteVal = row[columnMapping.doliente] || '-';
+                const estadoVal = row[columnMapping.estado] || '-';
+                const observacionVal = row[columnMapping.observacion] || '-';
+                
+                console.log(`Fila ${itemId}:`, { proyectoVal, dolienteVal, estadoVal, observacionVal });
                 
                 detailHtml += `<tr id="row-${id}">
                     <td><span class="id-badge">${id}</span></td>
@@ -551,11 +556,17 @@
                     throw new Error('La hoja está vacía');
                 }
                 
-                console.log('Primeras columnas:', Object.keys(allData[0]));
+                const allColumns = Object.keys(allData[0]);
+                console.log('Todas las columnas del Excel:', allColumns);
 
-                contenidoCol = Object.keys(allData[0]).find(col => 
-                    col.toLowerCase().includes('contenido')
-                );
+                // Buscar columnas con múltiples variaciones
+                contenidoCol = findColumn(['contenido', 'Contenido', 'CONTENIDO']);
+                columnMapping.proyecto = findColumn(['proyecto', 'Proyecto', 'PROYECTO']);
+                columnMapping.doliente = findColumn(['doliente', 'Doliente', 'DOLIENTE']);
+                columnMapping.estado = findColumn(['estado', 'Estado', 'ESTADO']);
+                columnMapping.observacion = findColumn(['observacion', 'observación', 'Observación', 'Observacion', 'OBSERVACION', 'OBSERVACIÓN']);
+
+                console.log('Mapeo de columnas encontradas:', columnMapping);
                 
                 if (!contenidoCol) {
                     throw new Error('No se encontró columna "contenido"');
