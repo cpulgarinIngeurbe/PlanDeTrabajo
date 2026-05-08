@@ -65,6 +65,20 @@
             border-left: 4px solid #c00;
         }
         
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -97,6 +111,14 @@
         .table-wrapper {
             overflow-x: auto;
         }
+        
+        .summary-table td {
+            text-align: center;
+        }
+        
+        .summary-table td:first-child {
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -109,7 +131,33 @@
         <div class="content">
             <div id="loading" class="loading">Cargando archivo...</div>
             <div id="error" class="error" style="display:none;"></div>
-            <div id="tableContainer" class="table-wrapper"></div>
+            
+            <div id="summarySection" style="display:none;">
+                <h2 class="section-title">📈 Resumen de Categorías</h2>
+                <div class="table-wrapper">
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                <th>Porcentaje</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="dataSection" style="display:none;">
+                <h2 class="section-title">📋 Datos Completos</h2>
+                <div class="table-wrapper">
+                    <table id="dataTable">
+                        <thead id="dataTableHead"></thead>
+                        <tbody id="dataTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
     
@@ -124,39 +172,70 @@
                 const buffer = await response.arrayBuffer();
                 const workbook = XLSX.read(buffer, { type: 'array' });
                 
-                // Obtener la primera hoja
                 const firstSheet = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheet];
-                
-                // Convertir a array de arrays
                 const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
                 
                 if (data.length === 0) {
                     throw new Error('La hoja está vacía');
                 }
                 
-                // Crear tabla HTML
-                let html = '<table><thead><tr>';
+                // Buscar la columna "contenido" (case insensitive)
+                const contenidoCol = Object.keys(data[0]).find(col => 
+                    col.toLowerCase().includes('contenido')
+                );
                 
-                // Headers
-                Object.keys(data[0]).forEach(key => {
-                    html += `<th>${key}</th>`;
-                });
-                html += '</tr></thead><tbody>';
+                if (!contenidoCol) {
+                    throw new Error('No se encontró columna "contenido"');
+                }
                 
-                // Filas
+                // Contar categorías
+                const categoryCount = {};
                 data.forEach(row => {
-                    html += '<tr>';
-                    Object.values(row).forEach(value => {
-                        html += `<td>${value}</td>`;
-                    });
-                    html += '</tr>';
+                    const category = row[contenidoCol]?.toString().trim();
+                    if (category) {
+                        categoryCount[category] = (categoryCount[category] || 0) + 1;
+                    }
                 });
                 
-                html += '</tbody></table>';
+                const totalRows = Object.values(categoryCount).reduce((a, b) => a + b, 0);
+                
+                // Renderizar tabla de resumen
+                const summaryHtml = Object.entries(categoryCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([category, count]) => {
+                        const percentage = ((count / totalRows) * 100).toFixed(2);
+                        return `<tr>
+                            <td>${category}</td>
+                            <td>${count}</td>
+                            <td>${percentage}%</td>
+                        </tr>`;
+                    })
+                    .join('');
+                
+                document.getElementById('summaryTableBody').innerHTML = summaryHtml;
+                document.getElementById('summarySection').style.display = 'block';
+                
+                // Renderizar tabla de datos
+                let dataHtml = '<thead><tr>';
+                Object.keys(data[0]).forEach(key => {
+                    dataHtml += `<th>${key}</th>`;
+                });
+                dataHtml += '</tr></thead><tbody>';
+                
+                data.forEach(row => {
+                    dataHtml += '<tr>';
+                    Object.values(row).forEach(value => {
+                        dataHtml += `<td>${value}</td>`;
+                    });
+                    dataHtml += '</tr>';
+                });
+                dataHtml += '</tbody>';
+                
+                document.getElementById('dataTable').innerHTML = dataHtml;
+                document.getElementById('dataSection').style.display = 'block';
                 
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('tableContainer').innerHTML = html;
                 
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
@@ -166,7 +245,6 @@
             }
         }
         
-        // Cargar cuando se cargue la página
         window.addEventListener('DOMContentLoaded', loadExcel);
     </script>
 </body>
