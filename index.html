@@ -172,6 +172,7 @@
             text-transform: uppercase;
             white-space: normal;
             word-break: break-word;
+            min-width: 100px;
         }
 
         table td {
@@ -179,6 +180,7 @@
             border-bottom: 1px solid #e0e0e0;
             color: #333;
             font-size: 13px;
+            word-break: break-word;
         }
 
         table tbody tr:hover {
@@ -188,6 +190,7 @@
         .table-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            width: 100%;
         }
 
         .summary-table td {
@@ -233,7 +236,7 @@
             margin: 5% auto;
             padding: 30px;
             width: 100%;
-            max-width: 850px;
+            max-width: 1000px;
             max-height: 75vh;
             overflow-y: auto;
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
@@ -297,6 +300,7 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
             word-break: break-word;
+            min-width: 90px;
         }
 
         .detail-table td {
@@ -304,6 +308,7 @@
             border-bottom: 1px solid #A3C610;
             color: #2d3e50;
             word-break: break-word;
+            font-size: 12px;
         }
 
         .detail-table tbody tr {
@@ -383,25 +388,28 @@
             table th, table td {
                 padding: 8px 10px;
                 font-size: 11px;
-            }
-
-            .modal-content {
-                margin: 10% auto;
-                padding: 20px;
-            }
-
-            .modal-header h2 {
-                font-size: 16px;
+                min-width: 80px;
             }
 
             .detail-table th {
                 padding: 8px;
                 font-size: 9px;
+                min-width: 70px;
             }
 
             .detail-table td {
                 padding: 8px;
                 font-size: 11px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+                max-width: 95%;
+            }
+
+            .modal-header h2 {
+                font-size: 16px;
             }
         }
     </style>
@@ -459,11 +467,11 @@
                 <table class="detail-table">
                     <thead>
                         <tr>
-                            <th style="width: 12%;">ID</th>
-                            <th style="width: 22%;">Proyecto</th>
-                            <th style="width: 22%;">Doliente</th>
-                            <th style="width: 22%;">Estado</th>
-                            <th style="width: 22%;">Observación</th>
+                            <th>ID</th>
+                            <th>Proyecto</th>
+                            <th>Doliente</th>
+                            <th>Estado</th>
+                            <th>Observación</th>
                         </tr>
                     </thead>
                     <tbody id="detailTableBody">
@@ -492,16 +500,23 @@
             const estadoCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('estado'));
             const observacionCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('observ'));
 
+            console.log('Columnas encontradas:', { proyectoCol, dolienteCol, estadoCol, observacionCol });
+
             let detailHtml = '';
             let itemId = 1;
             details.forEach(row => {
                 const id = `${category.substring(0, 3).toUpperCase()}-${itemId}`;
+                const proyectoVal = row[proyectoCol] || '-';
+                const dolienteVal = row[dolienteCol] || '-';
+                const estadoVal = row[estadoCol] || '-';
+                const observacionVal = row[observacionCol] || '-';
+                
                 detailHtml += `<tr id="row-${id}">
                     <td><span class="id-badge">${id}</span></td>
-                    <td id="proyecto-${id}">${row[proyectoCol] || '-'}</td>
-                    <td id="doliente-${id}">${row[dolienteCol] || '-'}</td>
-                    <td id="estado-${id}">${row[estadoCol] || '-'}</td>
-                    <td id="observacion-${id}">${row[observacionCol] || '-'}</td>
+                    <td>${proyectoVal}</td>
+                    <td>${dolienteVal}</td>
+                    <td>${estadoVal}</td>
+                    <td>${observacionVal}</td>
                 </tr>`;
                 itemId++;
             });
@@ -536,6 +551,8 @@
                     throw new Error('La hoja está vacía');
                 }
                 
+                console.log('Primeras columnas:', Object.keys(allData[0]));
+
                 contenidoCol = Object.keys(allData[0]).find(col => 
                     col.toLowerCase().includes('contenido')
                 );
@@ -677,6 +694,7 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('error').textContent = `Error: ${error.message}`;
+                console.error(error);
             }
         }
         
