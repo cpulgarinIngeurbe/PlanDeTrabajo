@@ -130,6 +130,7 @@
             font-size: 12px;
             letter-spacing: 1px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         table td {
@@ -173,9 +174,9 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(45, 62, 80, 0.85);
+            background-color: rgba(75, 79, 29, 0.6);
             animation: fadeIn 0.3s;
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(2px);
         }
 
         @keyframes fadeIn {
@@ -184,37 +185,37 @@
         }
 
         .modal-content {
-            background-color: #E7E9C1;
-            margin: 5% auto;
-            padding: 40px;
+            background-color: rgba(231, 233, 193, 0.95);
+            margin: 10% auto;
+            padding: 30px;
             border-radius: 0;
-            width: 90%;
-            max-width: 1000px;
-            max-height: 80vh;
+            width: 85%;
+            max-width: 850px;
+            max-height: 70vh;
             overflow-y: auto;
             box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-            border-left: 5px solid #A3C610;
+            border-left: 6px solid #4B4F1D;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #A3C610;
-            padding-bottom: 20px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #4B4F1D;
+            padding-bottom: 15px;
         }
 
         .modal-header h2 {
             color: #2d3e50;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 600;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .close-btn {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 300;
             color: #A3C610;
             cursor: pointer;
@@ -229,22 +230,24 @@
 
         .detail-table {
             width: 100%;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 13px;
         }
 
         .detail-table th {
-            background: linear-gradient(135deg, #A3C610 0%, #4B4F1D 100%);
+            background: #4B4F1D;
             color: #E7E9C1;
-            padding: 16px;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
-            font-size: 12px;
-            letter-spacing: 1px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .detail-table td {
-            padding: 14px 16px;
+            padding: 12px;
             border-bottom: 1px solid #A3C610;
             color: #2d3e50;
         }
@@ -259,11 +262,11 @@
 
         .id-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #4B4F1D 0%, #2d3e50 100%);
+            background: #4B4F1D;
             color: #E7E9C1;
-            padding: 6px 14px;
-            border-radius: 2px;
-            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 1px;
+            font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
@@ -288,6 +291,12 @@
 
             .chart-container {
                 height: 300px;
+            }
+
+            .modal-content {
+                width: 90%;
+                max-width: 100%;
+                margin: 20% auto;
             }
         }
     </style>
@@ -317,9 +326,9 @@
                     <table class="summary-table">
                         <thead>
                             <tr>
-                                <th>Categoría</th>
-                                <th>Cantidad</th>
-                                <th>Porcentaje</th>
+                                <th style="width: 40%;">Categoría</th>
+                                <th style="width: 20%;">Cantidad</th>
+                                <th style="width: 40%;">Porcentaje</th>
                             </tr>
                         </thead>
                         <tbody id="summaryTableBody">
@@ -341,11 +350,11 @@
                 <table class="detail-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Proyecto</th>
-                            <th>Doliente</th>
-                            <th>Estado</th>
-                            <th>Observación</th>
+                            <th style="width: 12%;">ID</th>
+                            <th style="width: 22%;">Proyecto</th>
+                            <th style="width: 22%;">Doliente</th>
+                            <th style="width: 22%;">Estado</th>
+                            <th style="width: 22%;">Observación</th>
                         </tr>
                     </thead>
                     <tbody id="detailTableBody">
