@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor de Resultados</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -69,9 +70,23 @@
             font-size: 20px;
             font-weight: 600;
             color: #333;
+            margin-top: 30px;
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #667eea;
+        }
+        
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 40px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
         }
         
         table {
@@ -128,7 +143,12 @@
             <div id="error" class="error" style="display:none;"></div>
             
             <div id="summarySection" style="display:none;">
-                <h2 class="section-title">📈 Resumen de Categorías</h2>
+                <h2 class="section-title">📈 Gráfico de Categorías</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                
+                <h2 class="section-title">📋 Tabla de Categorías</h2>
                 <div class="table-wrapper">
                     <table class="summary-table">
                         <thead>
@@ -147,6 +167,8 @@
     </div>
     
     <script>
+        let chartInstance = null;
+        
         async function loadExcel() {
             try {
                 const url = 'https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/Resultados080526.xlsx';
@@ -185,9 +207,62 @@
                 
                 const totalRows = Object.values(categoryCount).reduce((a, b) => a + b, 0);
                 
+                // Ordenar por cantidad descendente
+                const sortedCategories = Object.entries(categoryCount)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                // Extraer datos para gráfico
+                const labels = sortedCategories.map(([cat]) => cat);
+                const quantities = sortedCategories.map(([, count]) => count);
+                
+                // Generar colores
+                const colors = labels.map((_, i) => {
+                    const hue = (i * 360 / labels.length);
+                    return `hsla(${hue}, 70%, 60%, 0.8)`;
+                });
+                
+                // Crear gráfico
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+                
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Cantidad',
+                            data: quantities,
+                            backgroundColor: colors,
+                            borderColor: colors.map(c => c.replace('0.8', '1')),
+                            borderWidth: 2,
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+                
                 // Renderizar tabla de resumen
-                const summaryHtml = Object.entries(categoryCount)
-                    .sort((a, b) => b[1] - a[1])
+                const summaryHtml = sortedCategories
                     .map(([category, count]) => {
                         const percentage = ((count / totalRows) * 100).toFixed(2);
                         return `<tr>
