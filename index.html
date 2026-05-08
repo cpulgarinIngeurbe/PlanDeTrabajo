@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor de Resultados</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -82,6 +82,7 @@
         
         .chart-container {
             position: relative;
+            width: 100%;
             height: 400px;
             margin-bottom: 40px;
             background: #f9f9f9;
@@ -105,7 +106,6 @@
             text-align: left;
             font-weight: 600;
             color: #333;
-            white-space: nowrap;
         }
         
         table td {
@@ -187,7 +187,6 @@
                     throw new Error('La hoja está vacía');
                 }
                 
-                // Buscar la columna "contenido" (case insensitive)
                 const contenidoCol = Object.keys(data[0]).find(col => 
                     col.toLowerCase().includes('contenido')
                 );
@@ -196,7 +195,6 @@
                     throw new Error('No se encontró columna "contenido"');
                 }
                 
-                // Contar categorías
                 const categoryCount = {};
                 data.forEach(row => {
                     const category = row[contenidoCol]?.toString().trim();
@@ -206,62 +204,57 @@
                 });
                 
                 const totalRows = Object.values(categoryCount).reduce((a, b) => a + b, 0);
+                const sortedCategories = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
                 
-                // Ordenar por cantidad descendente
-                const sortedCategories = Object.entries(categoryCount)
-                    .sort((a, b) => b[1] - a[1]);
-                
-                // Extraer datos para gráfico
                 const labels = sortedCategories.map(([cat]) => cat);
                 const quantities = sortedCategories.map(([, count]) => count);
+                const colors = [
+                    '#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe',
+                    '#43e97b', '#fa709a', '#fee140', '#30b0fe', '#ec4899'
+                ];
                 
-                // Generar colores
-                const colors = labels.map((_, i) => {
-                    const hue = (i * 360 / labels.length);
-                    return `hsla(${hue}, 70%, 60%, 0.8)`;
-                });
-                
-                // Crear gráfico
-                const ctx = document.getElementById('categoryChart').getContext('2d');
-                
-                if (chartInstance) {
-                    chartInstance.destroy();
-                }
-                
-                chartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Cantidad',
-                            data: quantities,
-                            backgroundColor: colors,
-                            borderColor: colors.map(c => c.replace('0.8', '1')),
-                            borderWidth: 2,
-                            borderRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            }
+                setTimeout(() => {
+                    const ctx = document.getElementById('categoryChart');
+                    if (!ctx) return;
+                    
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                    }
+                    
+                    chartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Cantidad',
+                                data: quantities,
+                                backgroundColor: colors.slice(0, labels.length),
+                                borderColor: colors.slice(0, labels.length),
+                                borderWidth: 1,
+                                borderRadius: 4
+                            }]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }, 100);
                 
-                // Renderizar tabla de resumen
                 const summaryHtml = sortedCategories
                     .map(([category, count]) => {
                         const percentage = ((count / totalRows) * 100).toFixed(2);
@@ -281,7 +274,6 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('error').style.display = 'block';
                 document.getElementById('error').textContent = `Error: ${error.message}`;
-                console.error(error);
             }
         }
         
