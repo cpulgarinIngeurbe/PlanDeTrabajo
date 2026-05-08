@@ -69,14 +69,9 @@
             font-size: 20px;
             font-weight: 600;
             color: #333;
-            margin-top: 30px;
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #667eea;
-        }
-        
-        .section-title:first-child {
-            margin-top: 0;
         }
         
         table {
@@ -148,16 +143,6 @@
                     </table>
                 </div>
             </div>
-            
-            <div id="dataSection" style="display:none;">
-                <h2 class="section-title">📋 Datos Completos</h2>
-                <div class="table-wrapper">
-                    <table id="dataTable">
-                        <thead id="dataTableHead"></thead>
-                        <tbody id="dataTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
     
@@ -215,26 +200,6 @@
                 
                 document.getElementById('summaryTableBody').innerHTML = summaryHtml;
                 document.getElementById('summarySection').style.display = 'block';
-                
-                // Renderizar tabla de datos
-                let dataHtml = '<thead><tr>';
-                Object.keys(data[0]).forEach(key => {
-                    dataHtml += `<th>${key}</th>`;
-                });
-                dataHtml += '</tr></thead><tbody>';
-                
-                data.forEach(row => {
-                    dataHtml += '<tr>';
-                    Object.values(row).forEach(value => {
-                        dataHtml += `<td>${value}</td>`;
-                    });
-                    dataHtml += '</tr>';
-                });
-                dataHtml += '</tbody>';
-                
-                document.getElementById('dataTable').innerHTML = dataHtml;
-                document.getElementById('dataSection').style.display = 'block';
-                
                 document.getElementById('loading').style.display = 'none';
                 
             } catch (error) {
