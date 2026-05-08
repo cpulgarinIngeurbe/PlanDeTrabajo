@@ -33,17 +33,26 @@
             width: 100%;
         }
 
-        .header-top {
+        .header {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
             margin-bottom: 30px;
-            gap: 20px;
+            color: #E7E9C1;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .logo-container {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             background: rgba(255, 255, 255, 0.1);
             padding: 10px;
             border-radius: 8px;
@@ -60,10 +69,8 @@
             object-fit: contain;
         }
 
-        .header {
+        .header-content {
             text-align: center;
-            color: #E7E9C1;
-            flex: 1;
         }
 
         .header h1 {
@@ -322,12 +329,16 @@
 
         @media (max-width: 1024px) {
             .logo-container {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
             }
 
             .header h1 {
                 font-size: 36px;
+            }
+
+            .header {
+                gap: 20px;
             }
         }
 
@@ -336,10 +347,14 @@
                 padding: 15px 10px;
             }
 
-            .header-top {
+            .header {
                 flex-direction: column;
-                align-items: center;
+                gap: 15px;
                 margin-bottom: 20px;
+            }
+
+            .logo-section {
+                order: -1;
             }
 
             .logo-container {
@@ -347,7 +362,7 @@
                 height: 100px;
             }
 
-            .header {
+            .header-content {
                 width: 100%;
             }
 
@@ -396,11 +411,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="header-top">
-            <div class="logo-container">
-                <img src="https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/logo.png" alt="Logo" onerror="this.parentElement.style.display='none'">
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo-container">
+                    <img src="https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/logo.png" alt="Logo" onerror="this.parentElement.style.display='none'">
+                </div>
             </div>
-            <div class="header">
+            <div class="header-content">
                 <h1>Consolidado de Iniciativas</h1>
                 <div class="decorative-line"></div>
                 <p>Deficiencias operativas en obra</p>
