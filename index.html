@@ -33,17 +33,15 @@
             width: 100%;
         }
 
-        .header {
-            text-align: center;
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 30px;
-            color: #E7E9C1;
-            position: relative;
+            gap: 20px;
         }
 
         .logo-container {
-            position: absolute;
-            top: 0;
-            right: 0;
             width: 120px;
             height: 120px;
             background: rgba(255, 255, 255, 0.1);
@@ -53,12 +51,19 @@
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(5px);
+            flex-shrink: 0;
         }
 
         .logo-container img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+
+        .header {
+            text-align: center;
+            color: #E7E9C1;
+            flex: 1;
         }
 
         .header h1 {
@@ -331,11 +336,19 @@
                 padding: 15px 10px;
             }
 
+            .header-top {
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
             .logo-container {
-                position: static;
                 width: 100px;
                 height: 100px;
-                margin: 0 auto 20px;
+            }
+
+            .header {
+                width: 100%;
             }
 
             .header h1 {
@@ -383,13 +396,15 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
+        <div class="header-top">
             <div class="logo-container">
-                <img src="https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/logo.png" alt="Logo" onerror="this.style.display='none'">
+                <img src="https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/logo.png" alt="Logo" onerror="this.parentElement.style.display='none'">
             </div>
-            <h1>Consolidado de Iniciativas</h1>
-            <div class="decorative-line"></div>
-            <p>Deficiencias operativas en obra</p>
+            <div class="header">
+                <h1>Consolidado de Iniciativas</h1>
+                <div class="decorative-line"></div>
+                <p>Deficiencias operativas en obra</p>
+            </div>
         </div>
 
         <div id="loading" class="loading">Cargando datos...</div>
