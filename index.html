@@ -15,7 +15,7 @@
         
         body {
             font-family: 'Segoe UI', Trebuchet MS, sans-serif;
-            background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
+            background: linear-gradient(135deg, #5a6d3a 0%, #6b7d42 100%);
             min-height: 100vh;
             padding: 40px 20px;
         }
@@ -461,6 +461,8 @@
                 
                 const labels = sortedCategories.map(([cat]) => cat);
                 const quantities = sortedCategories.map(([, count]) => count);
+                const maxQuantity = Math.max(...quantities);
+                const maxScale = maxQuantity + 1;
                 
                 setTimeout(() => {
                     const ctx = document.getElementById('categoryChart');
@@ -514,6 +516,7 @@
                             scales: {
                                 y: {
                                     beginAtZero: true,
+                                    max: maxScale,
                                     ticks: {
                                         stepSize: 1,
                                         color: '#2d3e50',
