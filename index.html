@@ -129,6 +129,85 @@
         .summary-table td:first-child {
             text-align: left;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .close-btn {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #764ba2;
+        }
+
+        .detail-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .detail-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .detail-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        .detail-table tbody tr:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -143,7 +222,7 @@
             <div id="error" class="error" style="display:none;"></div>
             
             <div id="summarySection" style="display:none;">
-                <h2 class="section-title">📈 Gráfico de Categorías</h2>
+                <h2 class="section-title">📈 Histograma de Categorías</h2>
                 <div class="chart-container">
                     <canvas id="categoryChart"></canvas>
                 </div>
@@ -165,9 +244,72 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalles de Categoría</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="table-wrapper">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>Tecnología</th>
+                            <th>Estado</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     
     <script>
         let chartInstance = null;
+        let allData = [];
+        let contenidoCol = '';
+        
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function showCategoryDetails(category) {
+            const details = allData.filter(row => 
+                row[contenidoCol]?.toString().trim() === category
+            );
+
+            // Encontrar las columnas relevantes (case insensitive)
+            const proyectoCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('proyecto'));
+            const tecnologiaCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('tecnolog'));
+            const estadoCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('estado'));
+            const observacionCol = Object.keys(allData[0]).find(col => col.toLowerCase().includes('observ'));
+
+            let detailHtml = '';
+            details.forEach(row => {
+                detailHtml += `<tr>
+                    <td>${row[proyectoCol] || '-'}</td>
+                    <td>${row[tecnologiaCol] || '-'}</td>
+                    <td>${row[estadoCol] || '-'}</td>
+                    <td>${row[observacionCol] || '-'}</td>
+                </tr>`;
+            });
+
+            document.getElementById('modalTitle').textContent = `Detalles de: ${category}`;
+            document.getElementById('detailTableBody').innerHTML = detailHtml;
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
         
         async function loadExcel() {
             try {
@@ -181,13 +323,13 @@
                 
                 const firstSheet = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheet];
-                const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                allData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
                 
-                if (data.length === 0) {
+                if (allData.length === 0) {
                     throw new Error('La hoja está vacía');
                 }
                 
-                const contenidoCol = Object.keys(data[0]).find(col => 
+                contenidoCol = Object.keys(allData[0]).find(col => 
                     col.toLowerCase().includes('contenido')
                 );
                 
@@ -196,7 +338,7 @@
                 }
                 
                 const categoryCount = {};
-                data.forEach(row => {
+                allData.forEach(row => {
                     const category = row[contenidoCol]?.toString().trim();
                     if (category) {
                         categoryCount[category] = (categoryCount[category] || 0) + 1;
@@ -229,22 +371,30 @@
                                 label: 'Cantidad',
                                 data: quantities,
                                 backgroundColor: colors.slice(0, labels.length),
-                                borderColor: colors.slice(0, labels.length),
-                                borderWidth: 1,
-                                borderRadius: 4
+                                borderColor: '#333',
+                                borderWidth: 2,
+                                borderRadius: 5
                             }]
                         },
                         options: {
-                            indexAxis: 'y',
+                            indexAxis: 'x',
                             responsive: true,
                             maintainAspectRatio: false,
+                            onClick: (event, elements) => {
+                                if (elements.length > 0) {
+                                    const index = elements[0].index;
+                                    const category = labels[index];
+                                    showCategoryDetails(category);
+                                }
+                            },
                             plugins: {
                                 legend: {
-                                    display: false
+                                    display: true,
+                                    position: 'top'
                                 }
                             },
                             scales: {
-                                x: {
+                                y: {
                                     beginAtZero: true,
                                     ticks: {
                                         stepSize: 1
