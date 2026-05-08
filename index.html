@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Resultados</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 16px;
+            padding: 20px;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c00;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table thead {
+            background: #f5f5f5;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        
+        table tbody tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Visor de Resultados</h1>
+            <p>Tabla desde Resultados080526.xlsx</p>
+        </div>
+        
+        <div class="content">
+            <div id="loading" class="loading">Cargando archivo...</div>
+            <div id="error" class="error" style="display:none;"></div>
+            <div id="tableContainer" class="table-wrapper"></div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadExcel() {
+            try {
+                const url = 'https://raw.githubusercontent.com/cpulgarinIngeurbe/PlanDeTrabajo/main/Resultados080526.xlsx';
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                
+                const buffer = await response.arrayBuffer();
+                const workbook = XLSX.read(buffer, { type: 'array' });
+                
+                // Obtener la primera hoja
+                const firstSheet = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheet];
+                
+                // Convertir a array de arrays
+                const data = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                
+                if (data.length === 0) {
+                    throw new Error('La hoja está vacía');
+                }
+                
+                // Crear tabla HTML
+                let html = '<table><thead><tr>';
+                
+                // Headers
+                Object.keys(data[0]).forEach(key => {
+                    html += `<th>${key}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                
+                // Filas
+                data.forEach(row => {
+                    html += '<tr>';
+                    Object.values(row).forEach(value => {
+                        html += `<td>${value}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('tableContainer').innerHTML = html;
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+                console.error(error);
+            }
+        }
+        
+        // Cargar cuando se cargue la página
+        window.addEventListener('DOMContentLoaded', loadExcel);
+    </script>
+</body>
+</html>
